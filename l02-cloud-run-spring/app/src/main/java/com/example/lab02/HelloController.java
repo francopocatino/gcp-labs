@@ -10,20 +10,22 @@ import java.util.Map;
 @RestController
 public class HelloController {
 
+  private final String appName = System.getenv().getOrDefault("APP_NAME", "undefined");
+  private final String message = System.getenv().getOrDefault("MESSAGE", "no-message");
+  private final String profile = System.getenv().getOrDefault("SPRING_PROFILES_ACTIVE", "default");
+
   @GetMapping("/")
   public Map<String, Object> root() {
     Map<String, Object> body = new LinkedHashMap<>();
-    body.put("service", "lab-02-cloud-run-spring");
-    body.put("status", "ok");
+    body.put("service", appName);
+    body.put("message", message);
+    body.put("profile", profile);
     body.put("time", Instant.now().toString());
     return body;
   }
 
   @GetMapping("/health")
   public Map<String, Object> health() {
-    Map<String, Object> body = new LinkedHashMap<>();
-    body.put("healthy", true);
-    return body;
+    return Map.of("healthy", true);
   }
 }
-
