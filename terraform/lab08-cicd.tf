@@ -64,6 +64,13 @@ resource "google_project_iam_member" "github_artifactregistry_writer" {
   member  = "serviceAccount:${google_service_account.github_deployer.email}"
 }
 
+# Service Usage permission (for using GCP services)
+resource "google_project_iam_member" "github_service_usage_consumer" {
+  project = var.project_id
+  role    = "roles/serviceusage.serviceUsageConsumer"
+  member  = "serviceAccount:${google_service_account.github_deployer.email}"
+}
+
 # Allow GitHub to impersonate the service account
 resource "google_service_account_iam_member" "github_workload_identity_user" {
   service_account_id = google_service_account.github_deployer.name

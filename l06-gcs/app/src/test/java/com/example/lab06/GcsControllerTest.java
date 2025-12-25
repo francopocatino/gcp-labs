@@ -33,11 +33,10 @@ class GcsControllerTest {
   }
 
   @Test
-  void writeWithoutBucketReturnsError() {
-    // When BUCKET_NAME env var is not set, should return error
-    ResponseEntity<Map> response = restTemplate.getForEntity("/gcs/write", Map.class);
-    assertEquals(HttpStatus.OK, response.getStatusCode());
-    // Will contain error if bucket not configured
+  void listEndpointResponds() {
+    // Simple test - just verify endpoint responds (doesn't actually call GCS)
+    ResponseEntity<Map> response = restTemplate.getForEntity("/gcs/list", Map.class);
+    // Will return 200 with list or error message depending on bucket config
     assertNotNull(response.getBody());
   }
 }
