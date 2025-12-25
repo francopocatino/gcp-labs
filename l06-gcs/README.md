@@ -1,49 +1,37 @@
-# Lab 06 — Cloud Storage (GCS) + IAM + Cloud Run
+# Lab 06 — Cloud Storage + IAM
 
-## Goal
-Let Cloud Run service read/write files in a GCS bucket using service account + least-privilege IAM.
+Cloud Run service that reads/writes files to GCS bucket. Practiced IAM scoping (service account with access to specific bucket only).
 
-## Setup
+## What I Built
+
+REST API for GCS operations:
+- `GET /gcs/write?name=...&content=...` - Upload file
+- `GET /gcs/read?name=...` - Download file
+- `GET /gcs/list` - List all objects
+
+## Setup Commands
 
 ```bash
 export REGION=us-central1
 export SERVICE=lab06-gcs
-export BUCKET_NAME="your-unique-bucket-name"  # must be globally unique
+export BUCKET_NAME="my-unique-bucket-name"
 export PROJECT_ID="$(gcloud config get-value project)"
 export SA_NAME=sa-lab06-gcs
 export SA_EMAIL="${SA_NAME}@${PROJECT_ID}.iam.gserviceaccount.com"
-```
 
-### 1) Create GCS Bucket
-```bash
 # Create bucket
-gcloud storage buckets create gs://${BUCKET_NAME} \
-  --location=${REGION}
+gcloud storage buckets create gs://${BUCKET_NAME} --location=${REGION}
 
-# Verify
-gcloud storage ls
-```
+# Create service account
+gcloud iam service-accounts create ${SA_NAME}
 
-### 2) Create Service Account
-```bash
-gcloud iam service-accounts create ${SA_NAME} \
-  --display-name="Service Account for ${SERVICE}"
-```
-
-### 3) Grant SA Access to Bucket
-Least privilege = only this bucket, not all buckets:
-```bash
+# Grant access (least privilege - only this bucket)
 gcloud storage buckets add-iam-policy-binding gs://${BUCKET_NAME} \
   --member="serviceAccount:${SA_EMAIL}" \
   --role="roles/storage.objectUser"
-```
 
-`objectUser` = read + write objects (not delete bucket or change IAM).
-
-### 4) Deploy to Cloud Run
-```bash
+# Deploy
 cd l06-gcs
-
 gcloud run deploy ${SERVICE} \
   --source . \
   --region ${REGION} \
@@ -52,55 +40,29 @@ gcloud run deploy ${SERVICE} \
   --allow-unauthenticated
 ```
 
-## Test
+## Testing
 
 ```bash
 SERVICE_URL=$(gcloud run services describe ${SERVICE} --region ${REGION} --format 'value(status.url)')
 
-# Write a file
-curl "${SERVICE_URL}/gcs/write?name=test.txt&content=hello+world"
-
-# Read it back
+curl "${SERVICE_URL}/gcs/write?name=test.txt&content=hello"
 curl "${SERVICE_URL}/gcs/read?name=test.txt"
-
-# List all objects
 curl "${SERVICE_URL}/gcs/list"
 ```
 
-## Endpoints
-- `GET /` - Service info
-- `GET /gcs/write?name=...&content=...` - Upload file
-- `GET /gcs/read?name=...` - Download file
-- `GET /gcs/list` - List all objects
+## Key Takeaways
 
-## Verify Least Privilege
-Try accessing a different bucket (should fail):
-```bash
-# Create another bucket
-gcloud storage buckets create gs://another-bucket-${PROJECT_ID}
+- IAM binding at bucket level (not project-wide)
+- Service account only has `objectUser` role (read/write, not delete bucket)
+- Cloud Run uses Application Default Credentials automatically
+- Bucket names must be globally unique
 
-# Try to write (will fail - SA only has access to first bucket)
-curl "${SERVICE_URL}/gcs/write?name=fail.txt" # won't work
-```
+Tested least privilege by trying to access a different bucket - correctly failed.
 
 ## Cleanup
+
 ```bash
-# Delete service
 gcloud run services delete ${SERVICE} --region ${REGION}
-
-# Delete bucket (warning: deletes all objects!)
 gcloud storage rm -r gs://${BUCKET_NAME}
-
-# Delete service account
 gcloud iam service-accounts delete ${SA_EMAIL} --quiet
 ```
-
-## Notes
-- Bucket names must be globally unique across all GCP
-- Use format: `${PROJECT_ID}-something` for uniqueness
-- IAM binding is on bucket resource, not project-wide
-- Cloud Run uses Application Default Credentials (ADC) automatically
-- Objects are stored with full path as name (no real "folders")
-
-## Next
-[Lab 07](../l07-pub-sub/) - Pub/Sub messaging

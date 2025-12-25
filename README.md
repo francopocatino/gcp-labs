@@ -1,43 +1,34 @@
 # GCP Learning Labs
 
-Hands-on labs for learning Google Cloud Platform. Each lab builds on the previous one.
+Personal hands-on labs for learning Google Cloud Platform. Built these while learning GCP fundamentals.
 
 ## Labs
 
-| Lab | Topic | Status |
-|-----|-------|--------|
-| [01](l01-basics/) | GCP Setup & Auth | ✓ |
-| [02](l02-cloud-run-spring/) | Cloud Run + Spring Boot | ✓ |
-| [03](l03-observability/) | Logging & Monitoring | ✓ |
-| [04](l04-config/) | Environment Variables | ✓ |
-| [05](l05-secrets-iam/) | Secret Manager + IAM | ✓ |
-| [06](l06-gcs/) | Cloud Storage | ✓ |
-| [07](l07-pub-sub/) | Pub/Sub Messaging | ✓ |
-| [08](l08-ci-cd/) | GitHub Actions CI/CD | ✓ |
+| Lab | Topic | Notes |
+|-----|-------|-------|
+| [01](l01-basics/) | GCP Setup & Auth | Initial setup, gcloud config |
+| [02](l02-cloud-run-spring/) | Cloud Run + Spring Boot | Basic serverless deployment |
+| [03](l03-observability/) | Logging & Monitoring | Cloud Logging, cold starts |
+| [04](l04-config/) | Environment Variables | Revisions, config mgmt |
+| [05](l05-secrets-iam/) | Secret Manager + IAM | Secrets, service accounts, least privilege |
+| [06](l06-gcs/) | Cloud Storage | Object storage with IAM |
+| [07](l07-pub-sub/) | Pub/Sub Messaging | Event-driven messaging |
+| [08](l08-ci-cd/) | GitHub Actions CI/CD | OIDC, Workload Identity |
 
-## Prerequisites
+## Stack
 
-- GCP account (free tier works)
-- gcloud CLI installed
-- Java 17+ and Maven
+- Java 17 + Spring Boot
+- Maven
+- Docker (multi-stage builds)
+- GCP services: Cloud Run, Secret Manager, GCS, Pub/Sub
+- GitHub Actions for CI/CD
 
-## Setup
-
-```bash
-git clone <repo-url>
-cd gcp-labs
-```
-
-Start with lab01 to configure gcloud, then work through sequentially.
-
-**Important**: Delete resources when done with each lab to avoid charges.
-
-## Project Structure
+## Structure
 
 ```
 gcp-labs/
 ├── l01-basics/              # GCP setup
-├── l02-cloud-run-spring/    # Spring Boot app (main codebase)
+├── l02-cloud-run-spring/    # Basic Spring Boot service
 ├── l03-observability/       # Logging examples
 ├── l04-config/              # Environment config
 ├── l05-secrets-iam/         # Secrets & service accounts
@@ -46,14 +37,22 @@ gcp-labs/
 └── l08-ci-cd/               # GitHub Actions
 ```
 
-Use `.env.example` as a template for local config.
+## Key Learnings
 
-## Quick Reference
+- Serverless deployment with Cloud Run (scale-to-zero, pay-per-use)
+- IAM best practices (least privilege, resource-scoped permissions)
+- Keyless auth with Workload Identity (no service account keys)
+- Event-driven architecture with Pub/Sub
+- Infrastructure security (Secret Manager, proper IAM)
+
+## Running Locally
 
 ```bash
-# Common commands
-gcloud config get-value project
-gcloud auth list
-gcloud run services list --region us-central1
-gcloud run services delete SERVICE --region us-central1
+cd l02-cloud-run-spring/app
+mvn package
+java -jar target/*.jar
 ```
+
+## Notes
+
+Built for learning GCP. Each lab is independently deployable. Used `.env.example` for config templates to avoid committing secrets.

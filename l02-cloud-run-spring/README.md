@@ -1,70 +1,51 @@
-# Lab 02 — Cloud Run + Spring App Sample
+# Lab 02 — Cloud Run + Spring Boot
 
-## Objective
-Deploy a basic Spring Boot REST API to Cloud Run. Understand serverless (scale-to-zero, auto-scaling, pay-per-use).
+Basic Spring Boot REST API deployed to Cloud Run. Learning serverless deployment.
 
-## Endpoints
-- `GET /`        → status + env vars
-- `GET /health`  → health check
+## What I Built
 
-## Local Testing
-```bash
-cd app
-mvn -DskipTests package
-java -jar target/*.jar
-# test: curl http://localhost:8080/
-```
+Simple REST service with:
+- `GET /` - Returns service info + env vars
+- `GET /health` - Health check
 
-Works locally before deploying.
-
-## Deploy to Cloud Run
+## Deployment
 
 ```bash
 export REGION=us-central1
 export SERVICE=lab02-spring
 
-cd l02-cloud-run-spring
-
 gcloud run deploy ${SERVICE} \
   --source . \
   --region ${REGION} \
   --allow-unauthenticated \
-  --set-env-vars APP_NAME="GCP Labs",MESSAGE="Hello from Cloud Run",SPRING_PROFILES_ACTIVE=prod
+  --set-env-vars APP_NAME="GCP Labs",MESSAGE="Hello from Cloud Run"
 ```
 
-Takes 2-3 min. Cloud Run builds the container automatically using the Dockerfile.
+Cloud Run builds the container automatically from the Dockerfile (multi-stage build).
 
-## Test
+## Local Testing
+
 ```bash
-SERVICE_URL=$(gcloud run services describe ${SERVICE} --region ${REGION} --format 'value(status.url)')
-curl ${SERVICE_URL}/
+cd app
+mvn package
+java -jar target/*.jar
+curl http://localhost:8080/
 ```
 
-## Key Behaviors
+## Observations
+
 - **Scale to zero**: No traffic = no instances = no charges
-- **Cold start**: First request after idle takes longer (~200-500ms)
-- **Auto-scale**: Handles traffic spikes automatically
+- **Cold start**: ~200-500ms on first request after idle
+- **Auto-scaling**: Handles traffic spikes without config
 
-Wait 15 min without traffic, then curl again - you'll feel the cold start.
+Left it idle for 15 min then hit it - definitely felt the cold start.
 
-## Env Variables
-App reads:
-- `APP_NAME` - app name shown in response
-- `MESSAGE` - custom message
-- `SPRING_PROFILES_ACTIVE` - Spring profile
+## Config
 
-Can update these without rebuilding (see lab04).
+App reads env vars (APP_NAME, MESSAGE, SPRING_PROFILES_ACTIVE). Can update these without rebuilding - see lab04.
 
 ## Cleanup
+
 ```bash
 gcloud run services delete ${SERVICE} --region ${REGION}
 ```
-
-## Notes
-- `--source .` uses Dockerfile for build (multi-stage: Maven → JRE)
-- `--allow-unauthenticated` makes it public (fine for learning)
-- Logs available in Cloud Console → Cloud Run → service → Logs tab
-- Image goes to Artifact Registry automatically
-
-## Next
-[Lab 03](../l03-observability/) - Logging and monitoring

@@ -1,17 +1,14 @@
 # Lab 07 — Pub/Sub Messaging
 
-## Goal
-Event-driven architecture with Pub/Sub. Cloud Run service publishes messages to topic, Pub/Sub pushes them to another endpoint.
+Event-driven messaging with Pub/Sub. Built a publisher and consumer using push subscriptions.
 
-## Core Concepts
-- **Topic**: Named channel for messages
-- **Publisher**: Sends messages to topic
-- **Subscription**: Receives messages from topic
-- **Push subscription**: Pub/Sub calls your HTTP endpoint with the message
-- **At-least-once delivery**: Messages may be delivered multiple times
-- **Idempotency**: Handlers should handle duplicate messages gracefully
+## What I Built
 
-## Setup
+- Publisher endpoint: `POST /pubsub/publish` with `{"message": "text"}`
+- Consumer endpoint: `POST /pubsub/consume` (Pub/Sub calls this)
+- Demonstrates at-least-once delivery and ACK/NACK behavior
+
+## Setup Commands
 
 ```bash
 export REGION=us-central1
@@ -21,122 +18,59 @@ export SUBSCRIPTION=lab07-subscription
 export PROJECT_ID="$(gcloud config get-value project)"
 export SA_NAME=sa-lab07-pubsub
 export SA_EMAIL="${SA_NAME}@${PROJECT_ID}.iam.gserviceaccount.com"
-```
 
-### 1) Create Pub/Sub Topic
-```bash
+# Create topic
 gcloud pubsub topics create ${TOPIC}
 
-# Verify
-gcloud pubsub topics list
-```
-
-### 2) Create Service Account
-```bash
-gcloud iam service-accounts create ${SA_NAME} \
-  --display-name="Service Account for ${SERVICE}"
-
-# Grant permission to publish to topic
+# Create service account with publish permission
+gcloud iam service-accounts create ${SA_NAME}
 gcloud pubsub topics add-iam-policy-binding ${TOPIC} \
   --member="serviceAccount:${SA_EMAIL}" \
   --role="roles/pubsub.publisher"
-```
 
-### 3) Deploy to Cloud Run
-```bash
+# Deploy
 cd l07-pub-sub
-
 gcloud run deploy ${SERVICE} \
   --source . \
   --region ${REGION} \
   --service-account ${SA_EMAIL} \
   --set-env-vars PROJECT_ID=${PROJECT_ID},PUBSUB_TOPIC=${TOPIC} \
   --allow-unauthenticated
-```
 
-### 4) Create Push Subscription
-Pub/Sub will POST messages to `/pubsub/consume`:
-```bash
+# Create push subscription (Pub/Sub will POST to /pubsub/consume)
 SERVICE_URL=$(gcloud run services describe ${SERVICE} --region ${REGION} --format 'value(status.url)')
-
 gcloud pubsub subscriptions create ${SUBSCRIPTION} \
   --topic=${TOPIC} \
-  --push-endpoint="${SERVICE_URL}/pubsub/consume" \
-  --ack-deadline=60
+  --push-endpoint="${SERVICE_URL}/pubsub/consume"
 ```
 
-## Test
+## Testing
 
-### Publish a message (producer)
 ```bash
-SERVICE_URL=$(gcloud run services describe ${SERVICE} --region ${REGION} --format 'value(status.url)')
-
+# Publish message
 curl -X POST ${SERVICE_URL}/pubsub/publish \
   -H "Content-Type: application/json" \
-  -d '{"message": "Hello from Pub/Sub"}'
-```
+  -d '{"message": "test message"}'
 
-### Check consumption (consumer)
-Messages are automatically pushed to `/pubsub/consume`. Check logs:
-```bash
+# Check logs for consumption
 gcloud run services logs read ${SERVICE} --region ${REGION} --limit 20
 ```
 
-You should see "Received Pub/Sub message: Hello from Pub/Sub"
+## Key Learnings
 
-## Endpoints
-- `GET /` - Service info
-- `POST /pubsub/publish` - Publish message to topic
-- `POST /pubsub/consume` - Consumer endpoint (Pub/Sub calls this)
+- **HTTP 2xx = ACK**: Pub/Sub won't retry
+- **HTTP != 2xx = NACK**: Pub/Sub retries with backoff
+- Messages can arrive multiple times (at-least-once delivery)
+- No guaranteed ordering (unless configured)
+- Push subscriptions are simpler than pull for this use case
 
-## At-Least-Once Delivery
-```bash
-# Publish a message
-curl -X POST ${SERVICE_URL}/pubsub/publish \
-  -H "Content-Type: application/json" \
-  -d '{"message": "test-123"}'
-
-# If /pubsub/consume returns non-2xx, Pub/Sub retries
-# Check logs - you might see same message multiple times
-gcloud run services logs read ${SERVICE} --region ${REGION} | grep "test-123"
-```
+Tested retry behavior by returning 500 - saw Pub/Sub retry the same message.
 
 ## Cleanup
+
 ```bash
-# Delete subscription
 gcloud pubsub subscriptions delete ${SUBSCRIPTION}
-
-# Delete topic
 gcloud pubsub topics delete ${TOPIC}
-
-# Delete service
 gcloud run services delete ${SERVICE} --region ${REGION}
-
-# Delete service account
 gcloud iam service-accounts delete ${SA_EMAIL} --quiet
 ```
-
-## Notes
-- **HTTP 2xx = ACK**: Pub/Sub won't retry
-- **HTTP != 2xx = NACK**: Pub/Sub will retry (with backoff)
-- Messages can arrive out of order
-- Same message can be delivered multiple times (design for idempotency)
-- Push subscriptions need public endpoints (or proper auth)
-- Pub/Sub max message size: 10MB
-- Default retention: 7 days
-
-## Alternative: Pull Subscription
-Instead of push, can poll for messages:
-```bash
-# Create pull subscription
-gcloud pubsub subscriptions create ${SUBSCRIPTION}-pull \
-  --topic=${TOPIC}
-
-# Pull messages manually
-gcloud pubsub subscriptions pull ${SUBSCRIPTION}-pull \
-  --auto-ack \
-  --limit=10
-```
-
-## Next
-[Lab 08](../l08-ci-cd/) - GitHub Actions CI/CD
