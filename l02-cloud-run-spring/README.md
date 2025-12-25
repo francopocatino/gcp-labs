@@ -1,11 +1,10 @@
 # Lab 02 — Cloud Run + Spring Boot
 
-Basic Spring Boot REST API deployed to Cloud Run. Learning serverless deployment.
+Basic Spring Boot REST API deployed to Cloud Run.
 
-## What I Built
+## Endpoints
 
-Simple REST service with:
-- `GET /` - Returns service info + env vars
+- `GET /` - Service info + env vars
 - `GET /health` - Health check
 
 ## Deployment
@@ -32,17 +31,12 @@ java -jar target/*.jar
 curl http://localhost:8080/
 ```
 
-## Observations
+## Notes
 
-- **Scale to zero**: No traffic = no instances = no charges
-- **Cold start**: ~200-500ms on first request after idle
-- **Auto-scaling**: Handles traffic spikes without config
-
-Left it idle for 15 min then hit it - definitely felt the cold start.
-
-## Config
-
-App reads env vars (APP_NAME, MESSAGE, SPRING_PROFILES_ACTIVE). Can update these without rebuilding - see lab04.
+- Scale to zero when no traffic
+- Cold start latency on first request after idle
+- Auto-scaling based on traffic
+- Environment variables configurable without rebuild (see lab04)
 
 ## Cleanup
 

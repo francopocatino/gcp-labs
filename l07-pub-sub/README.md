@@ -1,14 +1,13 @@
 # Lab 07 — Pub/Sub Messaging
 
-Event-driven messaging with Pub/Sub. Built a publisher and consumer using push subscriptions.
+Event-driven messaging with Pub/Sub. Publisher and consumer using push subscriptions.
 
-## What I Built
+## Endpoints
 
-- Publisher endpoint: `POST /pubsub/publish` with `{"message": "text"}`
-- Consumer endpoint: `POST /pubsub/consume` (Pub/Sub calls this)
-- Demonstrates at-least-once delivery and ACK/NACK behavior
+- `POST /pubsub/publish` - Publish message to topic
+- `POST /pubsub/consume` - Consumer endpoint (Pub/Sub calls this)
 
-## Setup Commands
+## Setup
 
 ```bash
 export REGION=us-central1
@@ -37,7 +36,7 @@ gcloud run deploy ${SERVICE} \
   --set-env-vars PROJECT_ID=${PROJECT_ID},PUBSUB_TOPIC=${TOPIC} \
   --allow-unauthenticated
 
-# Create push subscription (Pub/Sub will POST to /pubsub/consume)
+# Create push subscription
 SERVICE_URL=$(gcloud run services describe ${SERVICE} --region ${REGION} --format 'value(status.url)')
 gcloud pubsub subscriptions create ${SUBSCRIPTION} \
   --topic=${TOPIC} \
@@ -56,15 +55,13 @@ curl -X POST ${SERVICE_URL}/pubsub/publish \
 gcloud run services logs read ${SERVICE} --region ${REGION} --limit 20
 ```
 
-## Key Learnings
+## Notes
 
-- **HTTP 2xx = ACK**: Pub/Sub won't retry
-- **HTTP != 2xx = NACK**: Pub/Sub retries with backoff
-- Messages can arrive multiple times (at-least-once delivery)
-- No guaranteed ordering (unless configured)
-- Push subscriptions are simpler than pull for this use case
-
-Tested retry behavior by returning 500 - saw Pub/Sub retry the same message.
+- HTTP 2xx = ACK (Pub/Sub won't retry)
+- HTTP != 2xx = NACK (Pub/Sub retries with backoff)
+- At-least-once delivery (messages may arrive multiple times)
+- No guaranteed ordering unless configured
+- Push subscriptions for this use case
 
 ## Cleanup
 

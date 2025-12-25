@@ -1,15 +1,14 @@
 # Lab 06 — Cloud Storage + IAM
 
-Cloud Run service that reads/writes files to GCS bucket. Practiced IAM scoping (service account with access to specific bucket only).
+Cloud Run service with GCS integration. Service account scoped to specific bucket.
 
-## What I Built
+## Endpoints
 
-REST API for GCS operations:
 - `GET /gcs/write?name=...&content=...` - Upload file
 - `GET /gcs/read?name=...` - Download file
 - `GET /gcs/list` - List all objects
 
-## Setup Commands
+## Setup
 
 ```bash
 export REGION=us-central1
@@ -25,7 +24,7 @@ gcloud storage buckets create gs://${BUCKET_NAME} --location=${REGION}
 # Create service account
 gcloud iam service-accounts create ${SA_NAME}
 
-# Grant access (least privilege - only this bucket)
+# Grant bucket-level access
 gcloud storage buckets add-iam-policy-binding gs://${BUCKET_NAME} \
   --member="serviceAccount:${SA_EMAIL}" \
   --role="roles/storage.objectUser"
@@ -50,14 +49,12 @@ curl "${SERVICE_URL}/gcs/read?name=test.txt"
 curl "${SERVICE_URL}/gcs/list"
 ```
 
-## Key Takeaways
+## Notes
 
 - IAM binding at bucket level (not project-wide)
-- Service account only has `objectUser` role (read/write, not delete bucket)
-- Cloud Run uses Application Default Credentials automatically
+- `objectUser` role provides read/write access
+- Uses Application Default Credentials
 - Bucket names must be globally unique
-
-Tested least privilege by trying to access a different bucket - correctly failed.
 
 ## Cleanup
 
