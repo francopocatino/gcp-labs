@@ -20,7 +20,6 @@ Hands-on labs for learning Google Cloud Platform. Each lab builds on the previou
 - GCP account (free tier works)
 - gcloud CLI installed
 - Java 17+ and Maven
-- Basic command line knowledge
 
 ## Setup
 
@@ -30,13 +29,6 @@ cd gcp-labs
 ```
 
 Start with lab01 to configure gcloud, then work through sequentially.
-
-## Cost Management
-
-Most services have free tiers, but watch out for:
-- Cloud Run: Free tier is generous (2M requests/month)
-- Cloud Storage: First 5GB free
-- Pub/Sub: First 10GB free
 
 **Important**: Delete resources when done with each lab to avoid charges.
 
@@ -54,13 +46,6 @@ gcp-labs/
 └── l08-ci-cd/               # GitHub Actions
 ```
 
-## Security Note
-
-This is a public repo. Never commit:
-- GCP project IDs
-- Service account keys
-- Actual secrets or API keys
-
 Use `.env.example` as a template for local config.
 
 ## Quick Reference
@@ -72,10 +57,3 @@ gcloud auth list
 gcloud run services list --region us-central1
 gcloud run services delete SERVICE --region us-central1
 ```
-
-## Next Steps After Completing
-
-- Build a multi-service app using these patterns
-- Try Cloud SQL for databases
-- Explore Terraform for infrastructure as code
-- Add Cloud Monitoring and alerting
