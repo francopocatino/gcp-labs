@@ -50,6 +50,20 @@ resource "google_project_iam_member" "github_service_account_user" {
   member  = "serviceAccount:${google_service_account.github_deployer.email}"
 }
 
+# Cloud Build permission (for building from source)
+resource "google_project_iam_member" "github_cloudbuild_builder" {
+  project = var.project_id
+  role    = "roles/cloudbuild.builds.builder"
+  member  = "serviceAccount:${google_service_account.github_deployer.email}"
+}
+
+# Artifact Registry permission (for storing container images)
+resource "google_project_iam_member" "github_artifactregistry_writer" {
+  project = var.project_id
+  role    = "roles/artifactregistry.writer"
+  member  = "serviceAccount:${google_service_account.github_deployer.email}"
+}
+
 # Allow GitHub to impersonate the service account
 resource "google_service_account_iam_member" "github_workload_identity_user" {
   service_account_id = google_service_account.github_deployer.name
