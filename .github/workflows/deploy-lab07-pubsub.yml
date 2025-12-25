@@ -1,8 +1,11 @@
-name: Deploy to Cloud Run
+name: Deploy Lab07 (Pub/Sub)
 
 on:
   push:
     branches: [ "main" ]
+    paths:
+      - 'l07-pub-sub/**'
+      - '.github/workflows/deploy-lab07-pubsub.yml'
 
 permissions:
   contents: read
@@ -11,7 +14,8 @@ permissions:
 env:
   PROJECT_ID: focus-strand-482019-q2
   REGION: us-central1
-  SERVICE: lab02-spring
+  SERVICE: lab07-pubsub
+  PUBSUB_TOPIC: lab07-topic
 
 jobs:
   deploy:
@@ -30,14 +34,14 @@ jobs:
 
       - name: Run tests
         run: |
-          cd l02-cloud-run-spring/app
+          cd l07-pub-sub/app
           mvn test
 
       - name: Security scan
         uses: aquasecurity/trivy-action@master
         with:
           scan-type: 'fs'
-          scan-ref: 'l02-cloud-run-spring'
+          scan-ref: 'l07-pub-sub'
           severity: 'CRITICAL,HIGH'
           exit-code: '0'
 
@@ -54,15 +58,17 @@ jobs:
 
       - name: Deploy (build from source)
         run: |
-          cd l02-cloud-run-spring
+          cd l07-pub-sub
           gcloud run deploy "${SERVICE}" \
             --source . \
             --region "${REGION}" \
+            --service-account sa-lab07-pubsub@focus-strand-482019-q2.iam.gserviceaccount.com \
+            --set-env-vars PROJECT_ID="${PROJECT_ID}",PUBSUB_TOPIC="${PUBSUB_TOPIC}" \
             --allow-unauthenticated \
             --quiet
 
       - name: Smoke test
         run: |
           SERVICE_URL=$(gcloud run services describe "${SERVICE}" --region "${REGION}" --format 'value(status.url)')
-          echo "Testing ${SERVICE_URL}/health"
-          curl -f "${SERVICE_URL}/health" || exit 1
+          echo "Testing ${SERVICE_URL}/"
+          curl -f "${SERVICE_URL}/" || exit 1
