@@ -7,7 +7,7 @@ data "google_project" "project" {
 
 # Workload Identity Pool
 resource "google_iam_workload_identity_pool" "github" {
-  workload_identity_pool_id = "github-pool-v2"
+  workload_identity_pool_id = "github-pool-v3"
   display_name              = "GitHub Actions Pool"
   description               = "Workload Identity Pool for GitHub Actions"
 }
@@ -15,7 +15,7 @@ resource "google_iam_workload_identity_pool" "github" {
 # Workload Identity Provider (OIDC for GitHub)
 resource "google_iam_workload_identity_pool_provider" "github" {
   workload_identity_pool_id          = google_iam_workload_identity_pool.github.workload_identity_pool_id
-  workload_identity_pool_provider_id = "github-provider-v2"
+  workload_identity_pool_provider_id = "github-provider-v3"
   display_name                       = "GitHub Provider"
 
   attribute_mapping = {
