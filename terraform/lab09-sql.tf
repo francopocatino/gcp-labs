@@ -54,3 +54,19 @@ resource "google_project_iam_member" "lab09_sql_client" {
   role    = "roles/cloudsql.client"
   member  = "serviceAccount:${google_service_account.lab09.email}"
 }
+
+# Secret for database password
+resource "google_secret_manager_secret" "lab09_db_password" {
+  secret_id = "lab09_db_password"
+
+  replication {
+    auto {}
+  }
+}
+
+# Grant access to the secret
+resource "google_secret_manager_secret_iam_member" "lab09_secret_accessor" {
+  secret_id = google_secret_manager_secret.lab09_db_password.id
+  role      = "roles/secretmanager.secretAccessor"
+  member    = "serviceAccount:${google_service_account.lab09.email}"
+}
