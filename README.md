@@ -14,13 +14,14 @@ Personal hands-on labs for learning Google Cloud Platform. Built these while lea
 | [06](l06-gcs/) | Cloud Storage | Object storage with IAM |
 | [07](l07-pub-sub/) | Pub/Sub Messaging | Event-driven messaging |
 | [08](l08-ci-cd/) | GitHub Actions CI/CD | OIDC, Workload Identity |
+| [09](l09-cloud-sql/) | Cloud SQL + PostgreSQL | Managed database with Cloud Run |
 
 ## Stack
 
 - Java 17 + Spring Boot
 - Maven
 - Docker (multi-stage builds)
-- GCP services: Cloud Run, Secret Manager, GCS, Pub/Sub
+- GCP services: Cloud Run, Secret Manager, GCS, Pub/Sub, Cloud SQL
 - GitHub Actions for CI/CD
 
 ## Structure
@@ -34,7 +35,8 @@ gcp-labs/
 ├── l05-secrets-iam/         # Secrets & service accounts
 ├── l06-gcs/                 # Cloud Storage
 ├── l07-pub-sub/             # Event messaging
-└── l08-ci-cd/               # GitHub Actions
+├── l08-ci-cd/               # GitHub Actions
+└── l09-cloud-sql/           # Cloud SQL + PostgreSQL
 ```
 
 ## Key Learnings

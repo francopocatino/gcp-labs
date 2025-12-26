@@ -49,6 +49,22 @@ output "github_service_account" {
   value       = google_service_account.github_deployer.email
 }
 
+# Lab 09 - Cloud SQL
+output "db_instance_name" {
+  description = "Cloud SQL instance name"
+  value       = google_sql_database_instance.lab09.name
+}
+
+output "db_connection_name" {
+  description = "Cloud SQL connection name (for Cloud SQL Proxy)"
+  value       = google_sql_database_instance.lab09.connection_name
+}
+
+output "lab09_service_account" {
+  description = "Lab09 service account email"
+  value       = google_service_account.lab09.email
+}
+
 # Helpful commands
 output "next_steps" {
   description = "Next steps"

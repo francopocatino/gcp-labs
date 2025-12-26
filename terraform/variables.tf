@@ -39,3 +39,10 @@ variable "pubsub_subscription" {
   type        = string
   default     = "lab07-subscription"
 }
+
+# Lab 09 - Cloud SQL
+variable "db_password" {
+  description = "Cloud SQL database password"
+  type        = string
+  sensitive   = true
+}

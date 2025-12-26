@@ -1,0 +1,19 @@
+# Build artifacts
+target/
+*.class
+
+# Git
+.git/
+.gitignore
+
+# Docs
+*.md
+README.md
+
+# IDE
+.idea/
+.vscode/
+*.iml
+
+# Tests (already run in CI)
+src/test/
