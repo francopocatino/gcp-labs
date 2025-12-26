@@ -15,6 +15,7 @@ Personal hands-on labs for learning Google Cloud Platform. Built these while lea
 | [07](l07-pub-sub/) | Pub/Sub Messaging | Event-driven messaging |
 | [08](l08-ci-cd/) | GitHub Actions CI/CD | OIDC, Workload Identity |
 | [09](l09-cloud-sql/) | Cloud SQL + PostgreSQL | Managed database with Cloud Run |
+| [10](l10-observability/) | Logging & Monitoring | Cloud Logging, Error Reporting, Metrics |
 
 ## Stack
 
@@ -36,7 +37,8 @@ gcp-labs/
 ├── l06-gcs/                 # Cloud Storage
 ├── l07-pub-sub/             # Event messaging
 ├── l08-ci-cd/               # GitHub Actions
-└── l09-cloud-sql/           # Cloud SQL + PostgreSQL
+├── l09-cloud-sql/           # Cloud SQL + PostgreSQL
+└── l10-observability/       # Logging & monitoring guide
 ```
 
 ## Key Learnings
