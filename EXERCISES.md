@@ -1,139 +1,64 @@
 # Practice Exercises
 
-Simple hands-on exercises to practice what you learned. Do these on your own time.
+Things to try on your own to actually practice this stuff.
 
 ---
 
-## Lab 02 - Cloud Run Basics
+## Lab 02 - Cloud Run
 
-**Add a counter endpoint**
+Add a counter endpoint that increments each time you hit it. Something like `/count` that returns a number. Deploy it and test. Then restart the service and notice the counter resets because Cloud Run is stateless.
 
-1. Add a static counter variable to `HelloController.java`
-2. Create `/count` endpoint that increments and returns the count
-3. Deploy and test
-4. Restart the service → notice count resets (stateless!)
-
-**Time:** 15 min
-**What you learn:** Stateless services, local variables don't persist
+Learning goal: understand stateless services
 
 ---
 
-## Lab 05 - Secrets & IAM
+## Lab 05 - Secrets
 
-**Rotate a secret**
+Practice rotating a secret:
+```bash
+echo -n "new-value" | gcloud secrets versions add lab02_api_key --data-file=-
+```
 
-1. Update the secret value in Secret Manager:
-   ```bash
-   echo -n "new-secret-value" | gcloud secrets versions add lab02_api_key --data-file=-
-   ```
-2. Redeploy the service (picks up new version automatically)
-3. Verify the new secret is being used
-4. Disable the old secret version in console
+Redeploy the service and verify it picks up the new value. Then go to Secret Manager console and disable the old version.
 
-**Time:** 10 min
-**What you learn:** Secret rotation, versioning
+Learning goal: secret rotation
 
 ---
 
 ## Lab 06 - Cloud Storage
 
-**Add file download**
+Upload a file to your bucket (console or gcloud). Add a download endpoint that reads and returns file contents. Try different file types to see how they're handled.
 
-1. Upload a file to your bucket manually (console or gcloud)
-2. Add `/gcs/download?name=file.txt` endpoint
-3. Return file contents as response
-4. Test with different file types (text, JSON, image)
-
-**Time:** 20 min
-**What you learn:** Reading files from GCS, content types
+Learning goal: reading files from GCS
 
 ---
 
 ## Lab 07 - Pub/Sub
 
-**Build a simple queue**
+Send 10 messages to your topic in a loop. Check the Pub/Sub console to see them queued. Then consume them and watch them disappear.
 
-1. Publish 10 messages to your topic:
-   ```bash
-   for i in {1..10}; do
-     curl -X POST "$SERVICE_URL/pubsub/publish" \
-       -H "Content-Type: application/json" \
-       -d "{\"data\":\"Message $i\"}"
-   done
-   ```
-2. Check Cloud Console → Pub/Sub → Messages
-3. See them queued up
-4. Consume them (they disappear after ack)
-
-**Time:** 15 min
-**What you learn:** Message queuing, at-least-once delivery
+Learning goal: message queuing
 
 ---
 
 ## Lab 09 - Cloud SQL
 
-**Add a category feature** (from earlier suggestion)
+Add a `category` field to items. Let users filter items by category. Requires updating the entity, adding a repository method (`findByCategory`), and creating a search endpoint.
 
-1. Add `category` field to `Item` entity
-2. Add getter/setter
-3. Add search endpoint:
-   ```java
-   @GetMapping("/items/search")
-   public List<Item> searchByCategory(@RequestParam String category) {
-     return itemRepository.findByCategory(category);
-   }
-   ```
-4. Add repository method:
-   ```java
-   List<Item> findByCategory(String category);
-   ```
-5. Test creating items with categories and searching
-
-**Time:** 30 min
-**What you learn:** JPA queries, Spring Data magic
+Learning goal: database queries with JPA
 
 ---
 
-## Bonus: Terraform
+## Terraform
 
-**Destroy and recreate everything**
+Run `terraform destroy` to delete everything. Then `terraform apply` to recreate it all. See how fast you can rebuild your entire infrastructure.
 
-1. Run `terraform destroy` (deletes all infrastructure)
-2. Wait for completion
-3. Run `terraform apply` (recreates everything)
-4. See how fast you can rebuild your entire setup
-
-**Time:** 10 min
-**What you learn:** Infrastructure as Code power, reproducibility
+Learning goal: infrastructure as code reproducibility
 
 ---
 
-## Bonus: Break Things
+## Break Things
 
-**Practice debugging**
+Remove an IAM permission and watch the deployment fail. Then fix it. Or change the database password and see the connection error. Breaking things intentionally helps you understand error messages.
 
-1. Remove IAM permission from service account
-2. Deploy → see permission error
-3. Fix it (add permission back)
-4. Understand error messages
-
-Or:
-1. Change database password in Terraform
-2. Apply → service can't connect
-3. Update secret to match
-4. Verify connection works
-
-**Time:** 15-30 min
-**What you learn:** Debugging, error messages, GCP permissions
-
----
-
-## Tips
-
-- Do one exercise at a time
-- Actually type the code (don't copy-paste)
-- Break things on purpose to see what happens
-- Check Cloud Console to see changes
-- Read error messages carefully
-
-**Goal:** Practice, not perfection. Make mistakes and learn from them.
+Learning goal: debugging in production
