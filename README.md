@@ -17,6 +17,17 @@ Personal hands-on labs for learning Google Cloud Platform. Built these while lea
 | [09](l09-cloud-sql/) | Cloud SQL + PostgreSQL | Managed database with Cloud Run |
 | [10](l10-observability/) | Logging & Monitoring | Cloud Logging, Error Reporting, Metrics |
 
+**Architecture Patterns (Advanced):**
+
+| Lab | Pattern | Notes |
+|-----|---------|-------|
+| [11](l11-microservices/) | Microservices Architecture | Service-to-service communication, database per service |
+| [12](l12-event-driven/) | Event-Driven Architecture | Async via Pub/Sub, decoupled services |
+| [13](l13-api-gateway/) | API Gateway Pattern | Single entry point, centralized auth |
+| [14](l14-data-pipeline/) | Data Pipeline | Batch & streaming ETL, BigQuery |
+| [15](l15-multi-region-ha/) | Multi-Region HA | Global load balancer, disaster recovery |
+| [16](l16-security-architecture/) | Security (Defense in Depth) | Cloud Armor, IAP, Secret Manager, KMS |
+
 ## Stack
 
 - Java 17 + Spring Boot
@@ -38,16 +49,32 @@ gcp-labs/
 ├── l07-pub-sub/             # Event messaging
 ├── l08-ci-cd/               # GitHub Actions
 ├── l09-cloud-sql/           # Cloud SQL + PostgreSQL
-└── l10-observability/       # Logging & monitoring guide
+├── l10-observability/       # Logging & monitoring guide
+├── l11-microservices/       # Microservices pattern
+├── l12-event-driven/        # Event-driven architecture
+├── l13-api-gateway/         # API Gateway pattern
+├── l14-data-pipeline/       # Data pipeline (batch/streaming)
+├── l15-multi-region-ha/     # Multi-region HA
+└── l16-security-architecture/ # Defense in depth
 ```
 
 ## Key Learnings
 
+**Basics (Labs 1-10):**
 - Serverless deployment with Cloud Run (scale-to-zero, pay-per-use)
 - IAM best practices (least privilege, resource-scoped permissions)
 - Keyless auth with Workload Identity (no service account keys)
-- Event-driven architecture with Pub/Sub
+- Event-driven messaging with Pub/Sub
 - Infrastructure security (Secret Manager, proper IAM)
+- Managed databases (Cloud SQL)
+
+**Architecture Patterns (Labs 11-16):**
+- Microservices: service boundaries, database per service, sync HTTP communication
+- Event-Driven: async via Pub/Sub, decoupling, at-least-once delivery
+- API Gateway: single entry point, centralized auth, rate limiting
+- Data Pipelines: batch vs streaming, ETL, BigQuery
+- High Availability: multi-region deployment, global load balancing, failover
+- Security: defense in depth, Cloud Armor, IAP, zero trust
 
 ## Running Locally
 
