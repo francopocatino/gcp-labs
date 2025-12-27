@@ -1,0 +1,53 @@
+swagger: "2.0"
+info:
+  title: "My API Gateway"
+  description: "Single entry point for multiple backend services"
+  version: "1.0.0"
+host: "GATEWAY_URL"
+schemes:
+  - "https"
+produces:
+  - "application/json"
+
+paths:
+  /users:
+    get:
+      summary: "List users"
+      operationId: "listUsers"
+      x-google-backend:
+        address: "BACKEND_URL/users"
+      responses:
+        200:
+          description: "List of users"
+          schema:
+            type: "object"
+
+  /products:
+    get:
+      summary: "List products"
+      operationId: "listProducts"
+      x-google-backend:
+        address: "BACKEND_URL/products"
+      responses:
+        200:
+          description: "List of products"
+          schema:
+            type: "object"
+
+  /orders:
+    get:
+      summary: "List orders"
+      operationId: "listOrders"
+      x-google-backend:
+        address: "BACKEND_URL/orders"
+      responses:
+        200:
+          description: "List of orders"
+          schema:
+            type: "object"
+
+securityDefinitions:
+  api_key:
+    type: "apiKey"
+    name: "key"
+    in: "query"
