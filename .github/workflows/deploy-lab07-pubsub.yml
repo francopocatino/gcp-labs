@@ -1,0 +1,74 @@
+name: Deploy Lab07 (Pub/Sub)
+
+on:
+  push:
+    branches: [ "main" ]
+    paths:
+      - 'l07-pub-sub/**'
+      - '.github/workflows/deploy-lab07-pubsub.yml'
+
+permissions:
+  contents: read
+  id-token: write
+
+env:
+  PROJECT_ID: focus-strand-482019-q2
+  REGION: us-central1
+  SERVICE: lab07-pubsub
+  PUBSUB_TOPIC: lab07-topic
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: '17'
+          cache: 'maven'
+
+      - name: Run tests
+        run: |
+          cd l07-pub-sub/app
+          mvn test
+
+      - name: Security scan
+        uses: aquasecurity/trivy-action@master
+        with:
+          scan-type: 'fs'
+          scan-ref: 'l07-pub-sub'
+          severity: 'CRITICAL,HIGH'
+          exit-code: '0'
+
+      - name: Auth to Google Cloud (OIDC)
+        uses: google-github-actions/auth@v2
+        with:
+          workload_identity_provider: projects/324713611262/locations/global/workloadIdentityPools/github-pool-v3/providers/github-provider-v3
+          service_account: sa-github-deployer@focus-strand-482019-q2.iam.gserviceaccount.com
+
+      - name: Setup gcloud
+        uses: google-github-actions/setup-gcloud@v2
+        with:
+          project_id: ${{ env.PROJECT_ID }}
+
+      - name: Deploy (build from source)
+        run: |
+          cd l07-pub-sub
+          gcloud run deploy "${SERVICE}" \
+            --source . \
+            --region "${REGION}" \
+            --service-account sa-lab07-pubsub@focus-strand-482019-q2.iam.gserviceaccount.com \
+            --set-env-vars PROJECT_ID="${PROJECT_ID}",PUBSUB_TOPIC="${PUBSUB_TOPIC}" \
+            --allow-unauthenticated \
+            --quiet
+
+      - name: Smoke test
+        run: |
+          SERVICE_URL=$(gcloud run services describe "${SERVICE}" --region "${REGION}" --format 'value(status.url)')
+          echo "Testing ${SERVICE_URL}/"
+          curl -f "${SERVICE_URL}/" || exit 1

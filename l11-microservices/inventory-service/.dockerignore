@@ -1,0 +1,8 @@
+app/target/
+app/.mvn/
+app/mvnw
+app/mvnw.cmd
+.git/
+.gitignore
+README.md
+*.md

@@ -1,0 +1,12 @@
+# Copy this file to terraform.tfvars and fill in your values
+# terraform.tfvars is gitignored
+
+project_id  = "your-gcp-project-id"
+region      = "us-central1"
+github_repo = "your-username/gcp-labs"
+
+# Must be globally unique
+bucket_name = "your-project-id-lab06-bucket"
+
+# Database password (use a strong password)
+db_password = "change-me-to-strong-password"

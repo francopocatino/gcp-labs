@@ -1,0 +1,68 @@
+name: Deploy to Cloud Run
+
+on:
+  push:
+    branches: [ "main" ]
+
+permissions:
+  contents: read
+  id-token: write
+
+env:
+  PROJECT_ID: focus-strand-482019-q2
+  REGION: us-central1
+  SERVICE: lab02-spring
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: '17'
+          cache: 'maven'
+
+      - name: Run tests
+        run: |
+          cd l02-cloud-run-spring/app
+          mvn test
+
+      - name: Security scan
+        uses: aquasecurity/trivy-action@master
+        with:
+          scan-type: 'fs'
+          scan-ref: 'l02-cloud-run-spring'
+          severity: 'CRITICAL,HIGH'
+          exit-code: '0'
+
+      - name: Auth to Google Cloud (OIDC)
+        uses: google-github-actions/auth@v2
+        with:
+          workload_identity_provider: projects/324713611262/locations/global/workloadIdentityPools/github-pool-v3/providers/github-provider-v3
+          service_account: sa-github-deployer@focus-strand-482019-q2.iam.gserviceaccount.com
+
+      - name: Setup gcloud
+        uses: google-github-actions/setup-gcloud@v2
+        with:
+          project_id: ${{ env.PROJECT_ID }}
+
+      - name: Deploy (build from source)
+        run: |
+          cd l02-cloud-run-spring
+          gcloud run deploy "${SERVICE}" \
+            --source . \
+            --region "${REGION}" \
+            --allow-unauthenticated \
+            --quiet
+
+      - name: Smoke test
+        run: |
+          SERVICE_URL=$(gcloud run services describe "${SERVICE}" --region "${REGION}" --format 'value(status.url)')
+          echo "Testing ${SERVICE_URL}/health"
+          curl -f "${SERVICE_URL}/health" || exit 1
