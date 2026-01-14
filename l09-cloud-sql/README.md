@@ -107,7 +107,56 @@ Application reads from env vars:
 ## Costs
 
 **Cloud SQL db-f1-micro**: ~$7/month (smallest instance)
-Can stop instance when not using to save cost.
+
+**Free Tier**: db-f1-micro qualifies for ~750 hours/month free tier (about 31 days). Pausing the instance when not in use preserves free tier quota.
+
+**Pausing the instance**:
+```bash
+# In terraform/lab09-sql.tf, set:
+activation_policy = "NEVER"
+
+# Apply changes
+cd terraform && terraform apply
+```
+
+To resume, change `activation_policy` back to `"ALWAYS"` and apply.
+
+## Troubleshooting
+
+### Container fails to start / Port timeout
+
+**Symptom**: Deployment fails with "container failed to start and listen on port 8080"
+
+**Common causes**:
+1. **SQL instance is paused** (`activation_policy = "NEVER"`):
+   - Resume instance: Set `activation_policy = "ALWAYS"` and run `terraform apply`
+   - Wait 2-3 minutes for instance to start before deploying
+
+2. **Database connection timeout**:
+   - Check service account has `roles/cloudsql.client` role
+   - Verify `DB_CONNECTION_NAME` matches instance connection name
+   - Check database password secret exists: `gcloud secrets describe lab09_db_password`
+
+3. **Application startup timeout**:
+   - Cloud Run default timeout is 240 seconds
+   - Check logs: `gcloud run services logs read lab09-sql --region us-central1`
+
+### Health check fails
+
+The `/health` endpoint checks database connectivity. If it returns 503:
+- SQL instance may be paused or unreachable
+- Connection pool exhausted (check max pool size settings)
+- IAM permissions issue (verify service account roles)
+
+### Local testing without Cloud SQL
+
+Use H2 in-memory database for quick local testing:
+```bash
+# Add to application-test.properties
+spring.datasource.url=jdbc:h2:mem:testdb
+spring.datasource.driver-class-name=org.h2.Driver
+spring.jpa.database-platform=org.hibernate.dialect.H2Dialect
+```
 
 ## Cleanup
 
