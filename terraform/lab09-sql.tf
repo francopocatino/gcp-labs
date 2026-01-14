@@ -7,7 +7,8 @@ resource "google_sql_database_instance" "lab09" {
   region           = var.region
 
   settings {
-    tier = "db-f1-micro" # Smallest tier (free tier eligible)
+    tier              = "db-f1-micro" # Smallest tier (free tier eligible)
+    activation_policy = "NEVER"       # Pause instance to save free tier tokens (change to "ALWAYS" when needed)
 
     ip_configuration {
       # Allow Cloud Run to connect via public IP
