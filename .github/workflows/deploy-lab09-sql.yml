@@ -1,11 +1,16 @@
 name: Deploy Lab09 (Cloud SQL)
 
 on:
-  push:
-    branches: [ "main" ]
-    paths:
-      - 'l09-cloud-sql/**'
-      - '.github/workflows/deploy-lab09-sql.yml'
+  # Disabled auto-deploy while SQL instance is paused to save costs
+  # Uncomment push trigger when resuming active development
+  # push:
+  #   branches: [ "main" ]
+  #   paths:
+  #     - 'l09-cloud-sql/**'
+  #     - '.github/workflows/deploy-lab09-sql.yml'
+
+  # Manual trigger only
+  workflow_dispatch:
 
 permissions:
   contents: read
