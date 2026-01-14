@@ -25,8 +25,22 @@ public class ItemController {
   }
 
   @GetMapping("/health")
-  public Map<String, Object> health() {
-    return Map.of("healthy", true);
+  public ResponseEntity<Map<String, Object>> health() {
+    try {
+      // Check database connectivity
+      long count = itemRepository.count();
+      return ResponseEntity.ok(Map.of(
+        "status", "UP",
+        "database", "connected",
+        "items_count", count
+      ));
+    } catch (Exception e) {
+      return ResponseEntity.status(HttpStatus.SERVICE_UNAVAILABLE).body(Map.of(
+        "status", "DOWN",
+        "database", "disconnected",
+        "error", e.getMessage()
+      ));
+    }
   }
 
   // CREATE
