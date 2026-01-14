@@ -76,6 +76,31 @@ gcp-labs/
 - High Availability: multi-region deployment, global load balancing, failover
 - Security: defense in depth, Cloud Armor, IAP, zero trust
 
+## Cost Management
+
+These labs use GCP free tier where possible, but some resources can consume quota:
+
+**Pausing resources when not in use:**
+```bash
+# Pause Cloud SQL instance (saves free tier tokens)
+# In terraform/lab09-sql.tf, set: activation_policy = "NEVER"
+terraform apply
+
+# Scale Cloud Run to zero (automatic when no traffic)
+# Cloud Run naturally scales to zero with no min instances
+
+# Disable CI/CD auto-deploys
+# Workflows use workflow_dispatch for manual trigger when resources are paused
+```
+
+**Free tier considerations:**
+- Cloud Run: 2 million requests/month, 360,000 GB-seconds
+- Cloud SQL: db-f1-micro instance for ~750 hours/month
+- Secret Manager: 6 active secret versions free
+- Cloud Storage: 5GB standard storage free
+
+**Best practice:** Pause Cloud SQL instances (`activation_policy = "NEVER"`) when not actively developing to preserve free tier hours.
+
 ## Running Locally
 
 ```bash
